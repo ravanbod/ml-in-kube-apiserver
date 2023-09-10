@@ -3,6 +3,7 @@ package app
 import (
 	"log"
 	"ml-in-kube-apiserver/internal/config"
+	"ml-in-kube-apiserver/internal/delivery"
 
 	app_redis "ml-in-kube-apiserver/internal/db/redis"
 
@@ -22,5 +23,7 @@ func Run() {
 		log.Fatal("Error in connecting to redis ", err)
 	}
 
-	_ = redisConn
+	httpHandler := delivery.NewHandler(cfg.HTTPServerConfig)
+	httpHandler.SetImgHandler(redisConn)
+	httpHandler.StartServer()
 }
