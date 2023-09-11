@@ -4,6 +4,7 @@ import (
 	"log"
 	"ml-in-kube-apiserver/internal/config"
 	"ml-in-kube-apiserver/internal/delivery"
+	"ml-in-kube-apiserver/internal/rabbitmq"
 
 	app_redis "ml-in-kube-apiserver/internal/db/redis"
 
@@ -23,7 +24,12 @@ func Run() {
 		log.Fatal("Error in connecting to redis ", err)
 	}
 
+	rabbitConn, err := rabbitmq.NewRabbitmeConnection(cfg.RabbitmqConfig)
+	if err != nil {
+		log.Fatal("Error in connecting to rabbitmq", err)
+	}
+
 	httpHandler := delivery.NewHandler(cfg.HTTPServerConfig)
-	httpHandler.SetImgHandler(redisConn)
+	httpHandler.SetImgHandler(redisConn, rabbitConn)
 	httpHandler.StartServer()
 }

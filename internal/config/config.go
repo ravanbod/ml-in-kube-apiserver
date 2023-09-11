@@ -9,6 +9,7 @@ type (
 	Config struct {
 		RedisConfig      RedisConfig
 		HTTPServerConfig HTTPServerConfig
+		RabbitmqConfig   RabbitmqConfig
 	}
 
 	RedisConfig struct {
@@ -22,6 +23,12 @@ type (
 	HTTPServerConfig struct {
 		Host string
 		Port string
+	}
+
+	RabbitmqConfig struct {
+		Host     string
+		User     string
+		Password string
 	}
 )
 
@@ -43,6 +50,11 @@ func ReadConfigFromShell() (Config, error) {
 		HTTPServerConfig: HTTPServerConfig{
 			Host: os.Getenv("HTTP_SERVER_HOST"),
 			Port: os.Getenv("HTTP_SERVER_PORT"),
+		},
+		RabbitmqConfig: RabbitmqConfig{
+			Host:     os.Getenv("RABBITMQ_HOST"),
+			User:     os.Getenv("RABBITMQ_USER"),
+			Password: os.Getenv("RABBITMQ_PASSWORD"),
 		},
 	}, nil
 }
