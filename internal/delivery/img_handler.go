@@ -16,7 +16,12 @@ type imgHandler struct {
 }
 
 type imageRequest struct {
-	FileUrl string `json:"fileUrl" binding:"required"`
+	FileUrl string `json:"url" binding:"required"`
+}
+
+type imageUpdateRequest struct {
+	FileUrl string `json:"url" binding:"required"`
+	FileId  string `json:"id" binding:"required"`
 }
 
 func (r *Handler) SetImgHandler(redisConn *redis.Client, rabbitConn *amqp091.Connection) {
@@ -24,6 +29,7 @@ func (r *Handler) SetImgHandler(redisConn *redis.Client, rabbitConn *amqp091.Con
 
 	r.Engine.GET("/", myImgHandler.index)
 	r.Engine.POST("/image/", myImgHandler.addFileToQueue)
+	r.Engine.PATCH("/image/", myImgHandler.updateFilePredictedUrl)
 }
 
 func (r *imgHandler) index(c *gin.Context) {
@@ -65,5 +71,16 @@ func (r *imgHandler) addFileToQueue(c *gin.Context) {
 		ContentType: "application/json",
 		Body:        jsonData,
 	})
-	c.JSON(200, "Added to queue")
+	c.JSON(201, "Added to queue")
+}
+
+func (r *imgHandler) updateFilePredictedUrl(c *gin.Context) {
+	var req imageUpdateRequest
+	err := c.BindJSON(&req)
+	if err != nil {
+		c.JSON(400, "Bad request")
+		return
+	}
+	r.redisConn.HSet(context.Background(), req.FileId, "processed_url", req.FileUrl)
+	c.JSON(200, "updated")
 }
