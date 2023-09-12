@@ -30,6 +30,6 @@ func Run() {
 	}
 
 	httpHandler := delivery.NewHandler(cfg.HTTPServerConfig)
-	httpHandler.SetImgHandler(redisConn, rabbitConn)
+	httpHandler.SetImgHandler(redisConn, rabbitConn, cfg.S3Config)
 	httpHandler.StartServer()
 }
